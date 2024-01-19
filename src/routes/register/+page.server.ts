@@ -17,8 +17,9 @@ const registerUserSchema = z.object({
 });
 
 export const load: PageServerLoad = async (event) => {
+  const form = await superValidate(registerUserSchema);
   return {
-    form: superValidate(registerUserSchema),
+    form,
   };
 };
 
@@ -41,15 +42,12 @@ export const actions: Actions = {
     if (form.data.password !== form.data.passwordConfirm) {
       return setError(form, "passwordConfirm", "Passwords do not match");
     }
-
+    console.log(event.locals.supabase.auth,'supabase auth')
     const { error: authError } = await event.locals.supabase.auth.signUp({
+
       email: form.data.email,
       password: form.data.password,
-      options: {
-        data: {
-          full_name: form.data.full_name ?? "",
-        },
-      },
+      
     });
 
     if (authError) { 
